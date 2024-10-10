@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SRM Ramapuram Canteen</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            display: none;
+            z-index: 1000;
+        }
+        .modal {
+            transition: opacity 0.25s ease;
+        }
+        body.modal-active {
+            overflow-x: hidden;
+            overflow-y: visible !important;
+        }
+        .size-image{
+            height: 200px;
+            width: 200px;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-blue-100 to-indigo-100">
+    <header class="bg-blue-600 text-white p-4 shadow-md">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-3xl font-bold">SRM Ramapuram Canteen</h1>
+            <nav class="space-x-4">
+                <button class="text-white hover:bg-blue-700 px-3 py-2 rounded" onclick="showTab('home')">
+                    <i class="fas fa-home mr-2"></i>Home
+                </button>
+                <button class="text-white hover:bg-blue-700 px-3 py-2 rounded" onclick="showTab('menu')">
+                    <i class="fas fa-book mr-2"></i>Menu
+                </button>
+                <button class="text-white hover:bg-blue-700 px-3 py-2 rounded" onclick="showTab('order')">
+                    <i class="fas fa-utensils mr-2"></i>Order Now
+                </button>
+                <button class="text-white hover:bg-blue-700 px-3 py-2 rounded" onclick="showTab('your-orders')">
+                    <i class="fas fa-list mr-2"></i>Your Orders
+                </button>
+                <button class="text-white hover:bg-blue-700 px-3 py-2 rounded" onclick="showTab('contact')">
+                    <i class="fas fa-phone mr-2"></i>Contact
+                </button>
+                <button id="loginButton" class="text-white hover:bg-blue-700 px-3 py-2 rounded" onclick="showLoginModal()">
+                    <i class="fas fa-user mr-2"></i>Login
+                </button>
+                <button id="profileButton" class="text-white hover:bg-blue-700 px-3 py-2 rounded hidden" onclick="showProfileModal()">
+                    <i class="fas fa-user-circle mr-2"></i>Profile
+                </button>
+            </nav>
+            <button class="bg-white text-blue-600 hover:bg-blue-100 px-3 py-2 rounded relative" onclick="toggleCart()">
+                <i class="fas fa-shopping-cart"></i>
+                <span class="sr-only">Open cart</span>
+                <span id="cart-count" class="absolute -top-2 -right-2 h-5 w-5 text-xs bg-red-500 rounded-full flex items-center justify-center text-white">0</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="container mx-auto p-4">
+        <div id="home" class="tab-content">
+            <div class="text-center py-8">
+                <h2 class="text-4xl font-bold text-blue-600 mb-4">Welcome to SRM Ramapuram Canteen</h2>
+                <p class="text-xl text-gray-700 mb-8">Enjoy a wide variety of delicious cuisines right on campus! Satisfy your cravings with an endless selection of mouthwatering cuisines, all available right here on campus! From street food to gourmet dishes, order whatever you want, whenever you want, and have it delivered straight to you. Your favorite meals are just a tap away—no lines, no waiting, just pure deliciousness!</p>
+            </div>
+            <div class="mb-12">
+                <h3 class="text-2xl font-bold text-blue-600 mb-4">Top Selling Items</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" id="featured-dishes">
+                 
+                </div>
+            </div>
+            <div class="bg-white rounded-lg shadow-md p-6 mb-12">
+                <h3 class="text-2xl font-bold text-blue-600 mb-4">Words from the Chef</h3>
+                <blockquote class="italic text-gray-700">
+                    "At SRM Ramapuram Canteen, we're passionate about serving you the best flavors from around India. Our dishes are made with love, using fresh ingredients and traditional recipes. We hope each bite brings you joy and comfort!"
+                </blockquote>
+                <p class="text-right mt-4">- Chef Sairagavendraa Nambirajan</p>
+            </div>
+        </div>
+
+        <div id="order" class="tab-content hidden">
+            <div class="mb-6">
+                <label for="category" class="text-lg font-semibold text-gray-700">Filter by Category:</label>
+                <select id="category" class="ml-2 p-2 border rounded bg-white text-gray-700" onchange="filterItems()">
+                    <option value="All">All</option>
+                </select>
+            </div>
+            <div id="menu-items" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+             
+            </div>
+        </div>
+
+        <div id="menu" class="tab-content hidden">
+            <h2 class="text-3xl font-bold text-blue-600 mb-4">Our Menu</h2>
+            <div id="full-menu">
+           
+            </div>
+        </div>
+
+        <div id="your-orders" class="tab-content hidden">
+            <h2 class="text-3xl font-bold text-blue-600 mb-4">Your Orders</h2>
+            <div id="order-history" class="space-y-4">
+            
+            </div>
+        </div>
+
+        <div id="contact" class="tab-content hidden">
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-3xl font-bold text-blue-600 mb-4">Contact Us</h2>
+                <p class="text-gray-700 mb-2"><strong>Address:</strong> SRM Institute of Science and Technology, Ramapuram Campus, Chennai</p>
+                <p class="text-gray-700 mb-2"><strong>Phone:</strong> +91 1234567890</p>
+                <p class="text-gray-700 mb-2"><strong>Email:</strong> canteen@srmramapuram.edu.in</p>
+                <p class="text-gray-700"><strong>Hours:</strong> Monday to Friday, 7:00 AM to 6:00 PM</p>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-blue-600 text-white text-center p-4 mt-8">
+        <p>&copy; Made with 💗 by thenabeeeeel </p>
+    </footer>
+
+    <div id="cart" class="fixed inset-y-0 right-0 w-64 bg-white shadow-lg transform translate-x-full transition-transform duration-300 ease-in-out">
+        <div class="p-4">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-bold">Your Cart</h2>
+                <button onclick="toggleCart()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div id="cart-items" class="space-y-4">
+             
+            </div>
+            <div class="mt-4 text-right font-bold">
+                Total: ₹<span id="cart-total">0</span>
+            </div>
+            <button onclick="placeOrder()" class="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded">
+                Place Order
+            </button>
+        </div>
+    </div>
+
+    <div id="notification" class="notification"></div>
+
+    <div id="loginModal" class="modal fixed w-full h-full top-0 left-0 flex items-center justify-center hidden">
+        <div class="modal-overlay absolute w-full h-full bg-gray-900 opacity-50"></div>
+        
+        <div class="modal-container bg-white w-11/12 md:max-w-md mx-auto rounded shadow-lg z-50 overflow-y-auto">
+            <div class="modal-content py-4 text-left px-6">
+                <div class="flex justify-between items-center pb-3">
+                    <p class="text-2xl font-bold">Login</p>
+                    <div class="modal-close cursor-pointer z-50" onclick="hideLoginModal()">
+                        <svg class="fill-current text-black" xmlns="" width="18" height="18" viewBox="0 0 18 18">
+                            <path d="M14.53 4.53l-1.06-1.06L9 7.94 4.53 3.47 3.47 4.53 7.94 9l-4.47 4.47 1.06 1.06L9 10.06l4.47 4.47 1.06-1.06L10.06 9z"></path>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="my-5">
+                    <input id="username" type="text" placeholder="Username" class="w-full px-3 py-2 placeholder-gray-300 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-indigo-100 focus:border-indigo-300">
+                </div>
+                <div class="my-5">
+                    <input id="password" type="password" placeholder="Password" class="w-full px-3 py-2 placeholder-gray-300 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-indigo-100 focus:border-indigo-300">
+                </div>
+                <div class="my-5">
+                    <select id="loginType" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-indigo-100 focus:border-indigo-300">
+                        <option value="user">User</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+
+                <button id="loginSubmitButton" class="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                    Login
+                </button>
+
+                <p class="text-center mt-4">
+                    Don't have an account? 
+                    <a href="#" class="text-blue-500 hover:text-blue-700" onclick="showSignUpModal()">Sign Up</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sign Up Modal -->
+    <div id="signUpModal" class="modal fixed w-full h-full top-0 left-0 flex items-center justify-center hidden">
+        <div class="modal-overlay absolute w-full h-full bg-gray-900 opacity-50"></div>
+        
+        <div class="modal-container bg-white w-11/12 md:max-w-md mx-auto rounded shadow-lg z-50 overflow-y-auto">
+            <div class="modal-content py-4 text-left px-6">
+                <div class="flex justify-between items-center pb-3">
+                    <p class="text-2xl font-bold">Sign Up</p>
+                    <div class="modal-close cursor-pointer z-50" onclick="hideSignUpModal()">
+                        <svg class="fill-current text-black" xmlns="" width="18" height="18" viewBox="0 0 18 18">
+                            <path d="M14.53 4.53l-1.06-1.06L9 7.94 4.53 3.47 3.47 4.53 7.94 9l-4.47 4.47 1.06 1.06L9 10.06l4.47 4.47 1.06-1.06L10.06 9z"></path>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="my-5">
+                    <input id="signUpUsername" type="text" placeholder="Username" class="w-full px-3 py-2 placeholder-gray-300 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-indigo-100 focus:border-indigo-300">
+                </div>
+                <div class="my-5">
+                    <input id="signUpEmail" type="email" placeholder="Email" class="w-full px-3 py-2 placeholder-gray-300 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-indigo-100 focus:border-indigo-300">
+                </div>
+                <div class="my-5">
+                    <input id="signUpPassword" type="password" placeholder="Password" class="w-full px-3 py-2 placeholder-gray-300 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-indigo-100 focus:border-indigo-300">
+                </div>
+                <div class="my-5">
+                    <input id="signUpConfirmPassword" type="password" placeholder="Confirm Password" class="w-full px-3 py-2 placeholder-gray-300 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-indigo-100 focus:border-indigo-300">
+                </div>
+
+                <button id="signUpSubmitButton" class="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                    Sign Up
+                </button>
+
+                <p class="text-center mt-4">
+                    Already have an account? 
+                    <a href="#" class="text-blue-500 hover:text-blue-700" onclick="showLoginModal()">Login</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div id="adminLoginModal" class="modal fixed w-full h-full top-0 left-0 flex items-center justify-center hidden">
+        <div class="modal-overlay absolute w-full h-full bg-gray-900 opacity-50"></div>
+        
+        <div class="modal-container bg-white w-11/12 md:max-w-md mx-auto rounded shadow-lg z-50 overflow-y-auto">
+            <div class="modal-content py-4 text-left px-6">
+                <div class="flex justify-between items-center pb-3">
+                    <p class="text-2xl font-bold">Admin Login</p>
+                    <div class="modal-close cursor-pointer z-50" onclick="hideAdminLoginModal()">
+                        <svg class="fill-current text-black" xmlns="" width="18" height="18" viewBox="0 0 18 18">
+                            <path d="M14.53 4.53l-1.06-1.06L9 7.94 4.53 3.47 3.47 4.53 7.94 9l-4.47 4.47 1.06 1.06L9 10.06l4.47 4.47 1.06-1.06L10.06 9z"></path>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="my-5">
+                    <input id="adminUsername" type="text" placeholder="Admin Username" class="w-full px-3 py-2 placeholder-gray-300 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-indigo-100 focus:border-indigo-300">
+                </div>
+                <div class="my-5">
+                    <input id="adminPassword" type="password" placeholder="Admin Password" class="w-full px-3 py-2 placeholder-gray-300 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-indigo-100 focus:border-indigo-300">
+                </div>
+
+                <button id="adminLoginSubmitButton" class="w-full bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                    Admin Login
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="adminPanel" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden">
+        <div class="relative top-20 mx-auto p-5 border w-3/4 shadow-lg rounded-md bg-white">
+            <h2 class="text-2xl font-bold mb-4">Admin Panel</h2>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <h3 class="text-xl font-semibold mb-2">Manage Menu</h3>
+                    <button class="bg-blue-500 text-white px-4 py-2 rounded mb-2" onclick="showAddItemForm()">Add New Item</button>
+                    <div id="menuItemsList" class="border p-2 h-64 overflow-y-auto">
+                 
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-xl font-semibold mb-2">Manage Orders</h3>
+                    <div id="ordersList" class="border p-2 h-64 overflow-y-auto">
+                     
+                    </div>
+                </div>
+            </div>
+            <button class="mt-4 bg-red-500 text-white px-4 py-2 rounded" onclick="logout()">Logout</button>
+        </div>
+    </div>
+
+    <div id="addItemForm" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <h3 class="text-lg font-semibold mb-4">Add New Item</h3>
+            <input id="newItemName" type="text" placeholder="Item Name" class="mb-3 px-3 py-2 border rounded w-full">
+            <input id="newItemPrice" type="number" placeholder="Price" class="mb-3 px-3 py-2 border rounded w-full">
+            <select id="newItemCategory" class="mb-3 px-3 py-2 border rounded w-full">
+            </select>
+            <button onclick="addNewItem()" class="bg-blue-500 text-white px-4 py-2 rounded w-full">Add Item</button>
+            <button onclick="hideAddItemForm()" class="mt-2 bg-gray-300 text-gray-800 px-4 py-2 rounded w-full">Cancel</button>
+        </div>
+    </div>
+
+    <div id="profileModal" class="modal fixed w-full h-full top-0 left-0 flex items-center justify-center hidden">
+        <div class="modal-overlay absolute w-full h-full bg-gray-900 opacity-50"></div>
+        
+        <div class="modal-container bg-white w-11/12 md:max-w-md mx-auto rounded shadow-lg z-50 overflow-y-auto">
+            <div class="modal-content py-4 text-left px-6">
+                <div class="flex justify-between items-center pb-3">
+                    <p class="text-2xl font-bold">User Profile</p>
+                    <div class="modal-close cursor-pointer z-50" onclick="hideProfileModal()">
+                        <svg class="fill-current text-black" xmlns="" width="18" height="18" viewBox="0 0 18 18">
+                            <path d="M14.53 4.53l-1.06-1.06L9 7.94 4.53 3.47 3.47 4.53 7.94 9l-4.47 4.47 1.06 1.06L9 10.06l4.47 4.47 1.06-1.06L10.06 9z"></path>
+                        </svg>
+                    </div>
+                </div>
+
+                <div id="profileContent">
+                </div>
+
+                <button onclick="logout()" class="mt-4 w-full bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                    Logout
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const foodItems = [
+            // South Indian
+            { id: 1, name: "Masala Dosa", price: 80, category: "South Indian", image: "Images/dosa.jpg?height=200&width=200" },
+            { id: 2, name: "Idli Sambar", price: 60, category: "South Indian", image: "/placeholder.svg?height=200&width=200" },
+            { id: 3, name: "Vada", price: 40, category: "South Indian", image: "/placeholder.svg?height=200&width=200" },
+            { id: 4, name: "Uttapam", price: 70, category: "South Indian", image: "/placeholder.svg?height=200&width=200" },
+            { id: 5, name: "Pongal", price: 65, category: "South Indian", image: "/placeholder.svg?height=200&width=200" },
+            { id: 6, name: "Rava Upma", price: 55, category: "South Indian", image: "/placeholder.svg?height=200&width=200" },
+            { id: 7, name: "Mysore Bonda", price: 50, category: "South Indian", image: "/placeholder.svg?height=200&width=200" },
+            { id: 8, name: "Medu Vada", price: 45, category: "South Indian", image: "/placeholder.svg?height=200&width=200" },
+            { id: 9, name: "Ven Pongal", price: 75, category: "South Indian", image: "/placeholder.svg?height=200&width=200" },
+            { id: 10, name: "Appam", price: 60, category: "South Indian", image: "/placeholder.svg?height=200&width=200" },
+
+            // North Indian
+            { id: 11, name: "Butter Chicken", price: 180, category: "North Indian", image: "Images/butter chicken.jpeg.jpg", class:"size-image" },
+            { id: 12, name: "Paneer Tikka", price: 160, category: "North Indian", image: "/placeholder.svg?height=200&width=200" },
+            { id: 13, name: "Dal Makhani", price: 120, category: "North Indian", image: "/placeholder.svg?height=200&width=200" },
+            { id: 14, name: "Chole Bhature", price: 100, category: "North Indian", image: "/placeholder.svg?height=200&width=200" },
+            { id: 15, name: "Aloo Paratha", price: 70, category: "North Indian", image: "/placeholder.svg?height=200&width=200" },
+            { id: 16, name: "Palak Paneer", price: 150, category: "North Indian", image: "/placeholder.svg?height=200&width=200" },
+            { id: 17, name: "Malai Kofta", price: 160, category: "North Indian", image: "/placeholder.svg?height=200&width=200" },
+            { id: 18, name: "Rajma Chawal", price: 110, category: "North Indian", image: "/placeholder.svg?height=200&width=200" },
+            { id: 19, name: "Kadai Chicken", price: 190, category: "North Indian", image: "/placeholder.svg?height=200&width=200" },
+            { id: 20, name: "Matar Paneer", price: 140, category: "North Indian", image: "/placeholder.svg?height=200&width=200" },
+
+            // Chinese
+            { id: 21, name: "Veg Fried Rice", price: 120, category: "Chinese", image: "Images/veg fried rice.jpeg.jpg" },
+            { id: 22, name: "Chicken Manchurian", price: 160, category: "Chinese", image: "/placeholder.svg?height=200&width=200" },
+            { id: 23, name: "Veg Noodles", price: 110, category: "Chinese", image: "/placeholder.svg?height=200&width=200" },
+            { id: 24, name: "Schezwan Chicken", price: 180, category: "Chinese", image: "/placeholder.svg?height=200&width=200" },
+            { id: 25, name: "Gobi Manchurian", price: 130, category: "Chinese", image: "/placeholder.svg?height=200&width=200" },
+            { id: 26, name: "Chilli Paneer", price: 150, category: "Chinese", image: "/placeholder.svg?height=200&width=200" },
+            { id: 27, name: "Egg Fried Rice", price: 130, category: "Chinese", image: "/placeholder.svg?height=200&width=200" },
+            { id: 28, name: "Veg Spring Roll", price: 90, category: "Chinese", image: "/placeholder.svg?height=200&width=200" },
+            { id: 29, name: "Chicken Noodles", price: 140, category: "Chinese", image: "/placeholder.svg?height=200&width=200" },
+            { id: 30, name: "Sweet and Sour Veg", price: 120, category: "Chinese", image: "/placeholder.svg?height=200&width=200" },
+
+            // Snacks
+            { id: 31, name: "Vada Pav", price: 30, category: "Snacks", image: "/placeholder.svg?height=200&width=200" },
+            { id: 32, name: "Samosa", price: 20, category: "Snacks", image: "/placeholder.svg?height=200&width=200" },
+            { id: 33, name: "Pani Puri", price: 40, category: "Snacks", image: "Images/pani puri.jpg" },
+            { id: 34, name: "Bhel Puri", price: 50, category: "Snacks", image: "/placeholder.svg?height=200&width=200" },
+            { id: 35, name: "Dabeli", price: 35, category: "Snacks", image: "/placeholder.svg?height=200&width=200" },
+            { id: 36, name: "Kachori", price: 25, category: "Snacks", image: "/placeholder.svg?height=200&width=200" },
+            { id: 37, name: "Aloo Tikki", price: 40, category: "Snacks", image: "/placeholder.svg?height=200&width=200" },
+            { id: 38, name: "Dhokla", price: 45, category: "Snacks", image: "/placeholder.svg?height=200&width=200" },
+            { id: 39, name: "Pakora", price: 30, category: "Snacks", image: "/placeholder.svg?height=200&width=200" },
+            { id: 40, name: "Bread Pakora", price: 35, category: "Snacks", image: "/placeholder.svg?height=200&width=200" },
+
+            // Desserts
+            { id: 51, name: "Gulab Jamun", price: 50, category: "Desserts", image: "Images/gulab jamun.jpeg.jpg"},
+            { id: 52, name: "Rasgulla", price: 45, category: "Desserts", image: "/placeholder.svg?height=200&width=200" },
+            { id: 53, name: "Kheer", price: 60, category: "Desserts", image: "/placeholder.svg?height=200&width=200" },
+            { id: 54, name: "Jalebi", price: 40, category: "Desserts", image: "/placeholder.svg?height=200&width=200" },
+            { id: 55, name: "Kulfi", price: 55, category: "Desserts", image: "/placeholder.svg?height=200&width=200" },
+
+            // Beverages
+            { id: 81, name: "Tea", price: 20, category: "Beverages", image: "/placeholder.svg?height=200&width=200" },
+            { id: 82, name: "Coffee", price: 30, category: "Beverages", image: "/placeholder.svg?height=200&width=200" },
+            { id: 83, name: "Masala Chai", price: 25, category: "Beverages", image: "/placeholder.svg?height=200&width=200" },
+            { id: 84, name: "Cold Coffee", price: 50, category: "Beverages", image: "Images/cold coffee.jpg" },
+            { id: 85, name: "Mango Lassi", price: 60, category: "Beverages", image: "Images/mango lassi.jpeg.jpg" },
+
+            // Juices
+            { id: 101, name: "Orange Juice", price: 40, category: "Juices", image: "Images/orange juice.jpeg.jpg" },
+            { id: 102, name: "Apple Juice", price: 45, category: "Juices", image: "/placeholder.svg?height=200&width=200" },
+            { id: 103, name: "Pineapple Juice", price: 50, category: "Juices", image: "/placeholder.svg?height=200&width=200" },
+            { id: 104, name: "Watermelon Juice", price: 40, category: "Juices", image: "/placeholder.svg?height=200&width=200" },
+            { id: 105, name: "Grape Juice", price: 45, category: "Juices", image: "/placeholder.svg?height=200&width=200" },
+            { id: 106, name: "Pomegranate Juice", price: 60, category: "Juices", image: "/placeholder.svg?height=200&width=200" },
+            { id: 107, name: "Mango Juice", price: 55, category: "Juices", image: "/placeholder.svg?height=200&width=200" },
+            { id: 108, name: "Lemon Juice", price: 30, category: "Juices", image: "/placeholder.svg?height=200&width=200" },
+            { id: 109, name: "Carrot Juice", price: 40, category: "Juices", image: "/placeholder.svg?height=200&width=200" },
+            { id: 110, name: "Mixed Fruit Juice", price: 55, category: "Juices", image: "/placeholder.svg?height=200&width=200" },
+            { id: 111, name: "Strawberry Juice", price: 60, category: "Juices", image: "/placeholder.svg?height=200&width=200" },
+            { id: 112, name: "Kiwi Juice", price: 65, category: "Juices", image: "/placeholder.svg?height=200&width=200" },
+            { id: 113, name: "Papaya Juice", price: 45, category: "Juices", image: "/placeholder.svg?height=200&width=200" },
+            { id: 114, name: "Guava Juice", price: 40, category: "Juices", image: "/placeholder.svg?height=200&width=200" },
+            { id: 115, name: "Cucumber Juice", price: 35, category: "Juices", image: "/placeholder.svg?height=200&width=200" },
+            { id: 116, name: "Beetroot Juice", price: 45, category: "Juices", image: "/placeholder.svg?height=200&width=200" },
+            { id: 117, name: "Coconut Water", price: 30, category: "Juices", image: "/placeholder.svg?height=200&width=200" },
+            { id: 118, name: "Sugarcane Juice", price: 25, category: "Juices", image: "/placeholder.svg?height=200&width=200" },
+            { id: 119, name: "Mosambi Juice", price: 40, category: "Juices", image: "/placeholder.svg?height=200&width=200" },
+            { id: 120, name: "Chikoo Juice", price: 45, category: "Juices", image: "/placeholder.svg?height=200&width=200" },
+
+            // Continental
+            { id: 121, name: "Grilled Chicken Sandwich", price: 120, category: "Continental", image: "/placeholder.svg?height=200&width=200" },
+            { id: 122, name: "Vegetable Pasta", price: 140, category: "Continental", image: "/placeholder.svg?height=200&width=200" },
+            { id: 123, name: "Cheese Pizza", price: 180, category: "Continental", image: "/placeholder.svg?height=200&width=200" },
+            { id: 124, name: "Vegetable Burger", price: 100, category: "Continental", image: "/placeholder.svg?height=200&width=200" },
+            { id: 125, name: "French Fries", price: 80, category: "Continental", image: "/placeholder.svg?height=200&width=200" },
+
+            // Salads
+            { id: 126, name: "Greek Salad", price: 110, category: "Salads", image: "/placeholder.svg?height=200&width=200" },
+            { id: 127, name: "Caesar Salad", price: 130, category: "Salads", image: "/placeholder.svg?height=200&width=200" },
+            { id: 128, name: "Fruit Salad", price: 90, category: "Salads", image: "/placeholder.svg?height=200&width=200" },
+            { id: 129, name: "Sprouts Salad", price: 70, category: "Salads", image: "/placeholder.svg?height=200&width=200" },
+            { id: 130, name: "Cucumber Tomato Salad", price: 60, category: "Salads", image: "/placeholder.svg?height=200&width=200" },
+        ];
+
+        const cart = [];
+        let orders = [];
+        let isLoggedIn = false;
+        let isAdmin = false;
+        let currentUser = null;
+
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
+            document.getElementById(tabName).classList.remove('hidden');
+            if (tabName === 'order') {
+                displayMenuItems();
+            } else if (tabName === 'menu') {
+                displayFullMenu();
+            } else if (tabName === 'home') {
+                displayFeaturedItems();
+            } else if (tabName === 'your-orders') {
+                displayOrderHistory();
+            }
+        }
+
+        function displayFeaturedItems() {
+            const featuredItems = [
+                foodItems.find(item => item.name === "Masala Dosa"),
+                foodItems.find(item => item.name === "Butter Chicken"),
+                foodItems.find(item => item.name === "Veg Fried Rice"),
+                foodItems.find(item => item.name === "Gulab Jamun"),
+                foodItems.find(item => item.name === "Mango Lassi"),
+                foodItems.find(item => item.name === "Orange Juice"),
+                foodItems.find(item => item.name === "Pani Puri"),
+                foodItems.find(item => item.name === "Cold Coffee")
+            ];
+            const featuredContainer = document.getElementById('featured-dishes');
+            featuredContainer.innerHTML = featuredItems.map(item => createItemCard(item)).join('');
+        }
+
+        function displayMenuItems() {
+            const menuContainer = document.getElementById('menu-items');
+            menuContainer.innerHTML = foodItems.map(item => createItemCard(item)).join('');
+        }
+
+        function displayFullMenu() {
+            const fullMenuContainer = document.getElementById('full-menu');
+            const categories = [...new Set(foodItems.map(item => item.category))];
+            fullMenuContainer.innerHTML = categories.map(category => `
+                <div class="mb-6">
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-2">${category}</h3>
+                    <ul class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        ${foodItems.filter(item => item.category === category).map(item => `
+                            <li class="flex justify-between items-center bg-gray-100 p-2 rounded">
+                                <span class="text-gray-700">${item.name}</span>
+                                <span class="font-semibold text-blue-600">₹${item.price}</span>
+                            </li>
+                        `).join('')}
+                    </ul>
+                </div>
+            `).join('');
+        }
+
+        function createItemCard(item) {
+            return `
+                <div class="bg-white rounded-lg overflow-hidden shadow-lg transition-transform duration-300 hover:scale-105">
+                    <img src="${item.image}" alt="${item.name}" class="w-full h-48 object-cover">
+                    <div class="p-4">
+                        <h2 class="text-xl font-semibold text-gray-800">${item.name}</h2>
+                        <p class="text-gray-600">${item.category}</p>
+                        <p class="text-2xl font-bold text-blue-600 mt-2">₹${item.price}</p>
+                        <button onclick="addToCart(${item.id})" class="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded">
+                            Add to Cart
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function addToCart(itemId) {
+            const item = foodItems.find(item => item.id === itemId);
+            const existingItem = cart.find(cartItem => cartItem.id === itemId);
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                cart.push({ ...item, quantity: 1 });
+            }
+            updateCart();
+            showNotification(`${item.name} added to cart`);
+        }
+
+        function removeFromCart(itemId) {
+            const index = cart.findIndex(item => item.id === itemId);
+            if (index !== -1) {
+                if (cart[index].quantity > 1) {
+                    cart[index].quantity -= 1;
+                } else {
+                    cart.splice(index, 1);
+                }
+            }
+            updateCart();
+        }
+
+        function updateCart() {
+            const cartItemsContainer = document.getElementById('cart-items');
+            const cartTotal = document.getElementById('cart-total');
+            const cartCount = document.getElementById('cart-count');
+
+            cartItemsContainer.innerHTML = cart.map(item => `
+                <div class="flex justify-between items-center">
+                    <span>${item.name} x ${item.quantity}</span>
+                    <div>
+                        <span class="mr-2">₹${item.price * item.quantity}</span>
+                        <button onclick="removeFromCart(${item.id})" class="text-red-500 hover:text-red-700">-</button>
+                        <button onclick="addToCart(${item.id})" class="text-green-500 hover:text-green-700">+</button>
+                    </div>
+                </div>
+            `).join('');
+
+            const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+            cartTotal.textContent = total;
+
+            const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+            cartCount.textContent = count;
+        }
+
+        function toggleCart() {
+            document.getElementById('cart').classList.toggle('translate-x-full');
+        }
+
+        function placeOrder() {
+            if (!isLoggedIn) {
+                showNotification('Please log in to place an order.');
+                return;
+            }
+            if (cart.length === 0) {
+                showNotification('Your cart is empty. Please add some items before placing an order.');
+                return;
+            }
+            const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+            const preparationTime =  Math.floor(Math.random() * 20) + 10; 
+            const order = {
+                id: Date.now(),
+                items: [...cart],
+                total: total,
+                date: new Date().toLocaleString(),
+                preparationTime: preparationTime,
+                status: 'Preparing'
+            };
+            orders.push(order);
+            showNotification(`Order placed successfully! Total: ₹${total}. Estimated preparation time: ${preparationTime} minutes.`);
+            cart.length = 0;
+            updateCart();
+            toggleCart();
+            saveOrdersToLocalStorage();
+            if (isAdmin) {
+                updateOrdersList();
+            }
+            setTimeout(() => {
+                showNotification(`Your order #${order.id} is ready! Please collect it from the counter.`);
+                order.status = 'Ready';
+                if (isAdmin) {
+                    updateOrdersList();
+                }
+            }, preparationTime * 60 * 1000);
+        }
+
+        function filterItems() {
+            const category = document.getElementById('category').value;
+            const menuContainer = document.getElementById('menu-items');
+            const filteredItems = category === 'All' ? foodItems : foodItems.filter(item => item.category === category);
+            menuContainer.innerHTML = filteredItems.map(item => createItemCard(item)).join('');
+        }
+
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.style.display = 'block';
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 5000);
+        }
+
+        function displayOrderHistory() {
+            const orderHistoryContainer = document.getElementById('order-history');
+            if (orders.length === 0) {
+                orderHistoryContainer.innerHTML = '<p class="text-center text-gray-600">No orders yet.</p>';
+            } else {
+                orderHistoryContainer.innerHTML = orders.map(order => `
+                    <div class="bg-white rounded-lg shadow-md p-4">
+                        <h3 class="text-lg font-semibold mb-2">Order #${order.id} - ${order.date}</h3>
+                        <ul class="mb-2">
+                            ${order.items.map(item => `
+                                <li class="flex justify-between">
+                                    <span>${item.name} x ${item.quantity}</span>
+                                    <span>₹${item.price * item.quantity}</span>
+                                </li>
+                            `).join('')}
+                        </ul>
+                        <p class="text-right font-bold">Total: ₹${order.total}</p>
+                        <p class="text-sm text-gray-600 mt-2">Estimated preparation time: ${order.preparationTime} minutes</p>
+                        <p class="text-sm font-semibold ${order.status === 'Ready' ? 'text-green-600' : 'text-yellow-600'} mt-1">Status: ${order.status}</p>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function saveOrdersToLocalStorage() {
+            localStorage.setItem('orders', JSON.stringify(orders));
+        }
+
+        function loadOrdersFromLocalStorage() {
+            const storedOrders = localStorage.getItem('orders');
+            if (storedOrders) {
+                orders = JSON.parse(storedOrders);
+            }
+        }
+
+        function showLoginModal() {
+            document.getElementById('loginModal').classList.remove('hidden');
+        }
+
+        function hideLoginModal() {
+            document.getElementById('loginModal').classList.add('hidden');
+        }
+
+        function showSignUpModal() {
+            hideLoginModal();
+            document.getElementById('signUpModal').classList.remove('hidden');
+        }
+
+        function hideSignUpModal() {
+            document.getElementById('signUpModal').classList.add('hidden');
+        }
+
+        function showAdminLoginModal() {
+            hideLoginModal();
+            document.getElementById('adminLoginModal').classList.remove('hidden');
+        }
+
+        function hideAdminLoginModal() {
+            document.getElementById('adminLoginModal').classList.add('hidden');
+        }
+
+        function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const loginType = document.getElementById('loginType').value;
+
+            if (loginType === 'admin') {
+                showAdminLoginModal();
+            } else if (username && password) {
+                isLoggedIn = true;
+                currentUser = { username, type: 'user' };
+                hideLoginModal();
+                showNotification('User logged in successfully');
+                updateUIAfterLogin();
+            } else {
+                showNotification('Invalid credentials');
+            }
+        }
+
+        function adminLogin() {
+            const username = document.getElementById('adminUsername').value;
+            const password = document.getElementById('adminPassword').value;
+
+            if (username === 'admin' && password === 'admin123') {
+                isLoggedIn = true;
+                isAdmin = true;
+                currentUser = { username, type: 'admin' };
+                hideAdminLoginModal();
+                showAdminPanel();
+                updateUIAfterLogin();
+            } else {
+                showNotification('Invalid admin credentials');
+            }
+        }
+
+        function signUp() {
+            const username = document.getElementById('signUpUsername').value;
+            const email = document.getElementById('signUpEmail').value;
+            const password = document.getElementById('signUpPassword').value;
+            const confirmPassword = document.getElementById('signUpConfirmPassword').value;
+
+            if (password !== confirmPassword) {
+                showNotification('Passwords do not match');
+                return;
+            }
+
+            isLoggedIn = true;
+            currentUser = { username, email, type: 'user' };
+            hideSignUpModal();
+            showNotification('Sign up successful! You are now logged in.');
+            updateUIAfterLogin();
+        }
+
+        function updateUIAfterLogin() {
+            document.getElementById('loginButton').classList.add('hidden');
+            document.getElementById('profileButton').classList.remove('hidden');
+            document.getElementById('profileButton').textContent = currentUser.username;
+        }
+
+        function logout() {
+            isLoggedIn = false;
+            isAdmin = false;
+            currentUser = null;
+            hideAdminPanel();
+            document.getElementById('loginButton').classList.remove('hidden');
+            document.getElementById('profileButton').classList.add('hidden');
+            showNotification('Logged out successfully');
+        }
+
+        function showAdminPanel() {
+            document.getElementById('adminPanel').classList.remove('hidden');
+            updateMenuItemsList();
+            updateOrdersList();
+        }
+
+        function hideAdminPanel() {
+            document.getElementById('adminPanel').classList.add('hidden');
+        }
+
+        function updateMenuItemsList() {
+            const menuItemsList = document.getElementById('menuItemsList');
+            menuItemsList.innerHTML = foodItems.map(item => `
+                <div class="flex justify-between items-center mb-2">
+                    <span>${item.name} - ₹${item.price}</span>
+                    <button class="bg-red-500 text-white px-2 py-1 rounded" onclick="deleteMenuItem(${item.id})">Delete</button>
+                </div>
+            `).join('');
+        }
+
+        function updateOrdersList() {
+            const ordersList = document.getElementById('ordersList');
+            ordersList.innerHTML = orders.map(order => `
+                <div class="mb-2">
+                    <strong>Order #${order.id}</strong> - ₹${order.total} - Status: ${order.status}
+                    ${order.status !== 'Completed' ? `<button class="bg-green-500 text-white px-2 py-1 rounded ml-2" onclick="markOrderComplete(${order.id})">Mark Complete</button>` : ''}
+                </div>
+            `).join('');
+        }
+
+        function showAddItemForm() {
+            document.getElementById('addItemForm').classList.remove('hidden');
+            const categoryDropdown = document.getElementById('newItemCategory');
+            const categories = [...new Set(foodItems.map(item => item.category))];
+            categoryDropdown.innerHTML = categories.map(category => `<option value="${category}">${category}</option>`).join('');
+        }
+
+        function hideAddItemForm() {
+            document.getElementById('addItemForm').classList.add('hidden');
+        }
+
+        function addNewItem() {
+            const name = document.getElementById('newItemName').value;
+            const price = parseFloat(document.getElementById('newItemPrice').value);
+            const category = document.getElementById('newItemCategory').value;
+
+            if (name && price && category) {
+                const newId = Math.max(...foodItems.map(item => item.id)) + 1;
+                const newItem = {
+                    id: newId,
+                    name: name,
+                    price: price,
+                    category: category,
+                    image: "/placeholder.svg?height=200&width=200"
+                };
+                foodItems.push(newItem);
+                updateMenuItemsList();
+                hideAddItemForm();
+                showNotification('New item added successfully');
+            } else {
+                showNotification('Please fill all fields');
+            }
+        }
+
+        function deleteMenuItem(itemId) {
+            const index = foodItems.findIndex(item => item.id === itemId);
+            if (index !== -1) {
+                foodItems.splice(index, 1);
+                updateMenuItemsList();
+                showNotification('Menu item deleted');
+            }
+        }
+
+        function markOrderComplete(orderId) {
+            const order = orders.find(order => order.id === orderId);
+            if (order) {
+                order.status = 'Completed';
+                updateOrdersList();
+                showNotification(`Order #${orderId} marked as complete`);
+            }
+        }
+
+        function showProfileModal() {
+            const profileContent = document.getElementById('profileContent');
+            profileContent.innerHTML = `
+                <p class="mb-2"><strong>Username:</strong> ${currentUser.username}</p>
+                <p class="mb-2"><strong>Email:</strong> ${currentUser.email || 'Not provided'}</p>
+                <p class="mb-2"><strong>Account Type:</strong> ${currentUser.type}</p>
+            `;
+            document.getElementById('profileModal').classList.remove('hidden');
+        }
+
+        function hideProfileModal() {
+            document.getElementById('profileModal').classList.add('hidden');
+        }
+
+        // Event Listeners
+        document.getElementById('loginSubmitButton').addEventListener('click', login);
+        document.getElementById('signUpSubmitButton').addEventListener('click', signUp);
+        document.getElementById('adminLoginSubmitButton').addEventListener('click', adminLogin);
+
+        showTab('home');
+        displayFeaturedItems();
+
+        const categoryDropdown = document.getElementById('category');
+        const categories = ['All', ...new Set(foodItems.map(item => item.category))];
+        categoryDropdown.innerHTML = categories.map(category => `<option value="${category}">${category}</option>`).join('');
+
+        loadOrdersFromLocalStorage();
+    </script>
+</body>
+</html>
